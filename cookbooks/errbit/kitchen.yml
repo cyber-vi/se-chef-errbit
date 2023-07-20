@@ -1,0 +1,42 @@
+driver:
+  name: dokken
+  use_internal_docker_network: true
+  chef_version: latest
+
+provisioner:
+  name: dokken
+  chef_license: accept-no-persist
+
+verifier:
+  name: inspec
+  inspec_tests:
+    - test
+  metadata: true
+
+transport:
+  name: dokken
+
+platforms:
+  - name: debian-10
+    driver:
+      image: dokken/debian-10
+      pid_one_command: /bin/systemd
+      privileged: true
+
+  - name: ubuntu-20.04
+    driver:
+      image: dokken/ubuntu-20.04
+      pid_one_command: /bin/systemd
+      privileged: true
+
+suites:
+  - name: install_app
+    lifecycle:
+      post_converge:
+        - local: sleep 10
+    run_list:
+      - recipe[errbit::default]
+    attributes:
+      errbit:
+        port: "8080"
+        host: "test.test"
